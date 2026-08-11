@@ -3,7 +3,11 @@
 
 ## Project Overview
 
-This project aims to develop a machine learning model to estimate the **final sales price (close price)** of residential single-family properties in California. The model will use only features that are available to an end user interested in estimating the current value of any property, regardless of whether it is for sale. Our solution is akin to building our own version of Zillow’s Zestimate, focusing strictly on features that a consumer could reasonably provide or look up.
+This project develops an Automated Valuation Model (AVM) to estimate the final sale price (ClosePrice) of single-family residential properties in California.
+
+The goal is to build a model that can estimate property value for both on-market and off-market properties, similar in concept to Zillow's Zestimate. Therefore, the predictive features are limited to information that would reasonably be available for a property regardless of whether it is currently listed for sale.
+
+The project progresses from data preprocessing and exploratory data analysis to baseline linear regression, tree-based ensemble models, gradient boosting, and quantile regression for prediction uncertainty.
 
 ---
 
@@ -11,8 +15,10 @@ This project aims to develop a machine learning model to estimate the **final sa
 
 ### Data Source
 
-- **Provider:** California Regional Multiple Listing Service (CRMLS)
-- **Data Location:** FTP server provided by idxexchange.com
+- **Provider** : California Regional Multiple Listing Service (CRMLS)
+- **Data Access** : FTP server provided through IDX Exchange
+- **Property Type** : Residential
+- **Property Subtype** : Single Family Residence
 
 
 ## Data Requirements
@@ -22,6 +28,7 @@ This project aims to develop a machine learning model to estimate the **final sa
     - `PropertySubType = "SingleFamilyResidence"`
 - **Exclude:**
     - Any features or columns that would not be available for a property currently *not* for sale (e.g., `ListPrice`, MLS listing-only fields).
+      
     - Fields with all missing values.
 
 ---
@@ -29,7 +36,46 @@ This project aims to develop a machine learning model to estimate the **final sa
 
 ## Task Specification
 
-### 1. Data Exploration
+
+### 1. Data Preprocessing
+
+file : Data_Preprocessing_idx
+
+The first stage focused on cleaning and preparing property, city, and geographic features for modeling.
+
+Preprocessing included:
+
+- Identifying invalid and missing observations
+- Preparing city, county, and geographic variables
+- Cleaning numerical and categorical property features
+- Combining separately processed feature groups into a unified dataset
+- Creating consistent variables for downstream exploratory analysis and modeling
+
+Only features considered appropriate for property valuation were retained.
+
+
+### 2. Consolidating Preprocessed Features
+
+file : Cleaning_dummies_data
+
+After preprocessing work was completed across different feature groups, the processed data were combined into a unified modeling dataset.
+
+Several features originally represented through large groups of dummy variables were reconstructed into more interpretable categorical variables for exploratory analysis.
+
+Examples included:
+
+- Flooring type
+- School district
+
+This step made the dataset easier to analyze and visualize while preserving the processed information generated during feature engineering
+
+
+### 3. Data Exploration
+
+file : Explanatory_Data_Analysis_idx
+
+The EDA used the final cleaned modeling sample rather than the original raw CRMLS dataset.
+
 - Inspect data structure and feature availability.
 - Identify and select only those features that an end user could provide or research, such as:
     - Square footage (living area)
@@ -38,19 +84,112 @@ This project aims to develop a machine learning model to estimate the **final sa
     - Number of bedrooms/bathrooms
     - Year built
     - Other public property attributes
-- Optionally, consider merging external data sources (e.g., local interest rates, economic indicators) if they can improve predictions and are accessible to users.
 
-### 2. Data Preprocessing
-- Handle missing values appropriately.
-- Encode categorical features as needed.
-- Scale numerical features if necessary.
-- Split data into training and testing sets (using the latest 3–6 months of data).
 
-### 3. Model Selection
-- Start with simple models (e.g., linear regression).
-- Experiment with advanced models (decision trees, random forests, gradient boosting, etc.).
-- Justify model selection choices.
+The EDA showed that California property prices were strongly right-skewed and that medians were generally more representative than means for describing prices.
 
+Living area and bathroom count showed some of the strongest numerical relationships with closing price, while geographic location produced substantial price variation.
+
+
+### 4. Model
+
+#### 1) Linear Regression
+
+file : **Regression_Model**
+- Linear regression was used as the initial modeling baseline. Both the original close-price scale and a log-transformed close-price target were evaluated.
+
+- Linear model diagnostics
+  
+  - Multicollinearity
+
+    Strong multicollinearity was identified among several predictors, particularly:
+    
+    - CPI
+    - Unemployment Rate
+    - Federal Interest Rate
+    - 30-Year Mortgage Rate
+    - Latitude
+    - Longitude
+    
+    High VIF values indicate that some predictors contain substantial overlapping information.
+    
+    Because of this, individual OLS coefficients, standard errors, p-values, and confidence intervals should be interpreted cautiously.
+
+    
+  - Residual Normality
+    
+    The Jarque-Bera test rejected the null hypothesis of normally distributed residuals, and the Q-Q plot showed noticeable deviations in the tails.
+
+    
+  - Homoscedasticity
+    
+    The Scale-Location plot showed changing residual spread across fitted values, indicating that the constant-variance assumption was not fully satisfied.
+    
+
+  - Independence
+    
+    The Durbin-Watson statistic was approximately 1.995, suggesting little evidence of serious residual autocorrelation.
+    
+    Overall, the linear model provided a useful and interpretable baseline, but the diagnostics indicated limitations in using a purely linear framework for property valuation.
+
+
+#### 2) Bagging and Boosting 
+
+file : **Bagging_Boosting_Model2**
+
+- Random Forest Regression
+
+    A Random Forest Regressor was developed as the primary bagging model.
+    
+    Random Forest was selected because it can model:
+    
+    - Nonlinear relationships
+    - Feature interactions
+    - Complex threshold effects
+    - Heterogeneous relationships across properties
+    
+    Hyperparameter tuning was performed in stages using cross-validation.
+    
+    Tree complexity, sampling settings, number of trees, and other regularization-related parameters were evaluated progressively.
+    
+    The final Random Forest model achieved approximately:
+    
+    - MAPE: 12%
+    - MAE: $137,411
+    - Test R²: 86.6%
+    
+    The model generalized substantially better than the linear regression baseline, although some train-test performance gap remained.
+    
+    Prediction errors also increased for more expensive properties, with the model tending to underpredict some high-value homes.
+    
+
+- XGBoost Regression
+  
+    An XGBoost Regressor was then developed as the primary boosting model.
+    
+    Hyperparameters were tuned progressively rather than through one very large grid search.
+    
+    The tuning stages investigated:
+    
+    - Tree depth
+    - Minimum child weight
+    - Sampling parameters
+    - Regularization
+    - Learning rate
+    - Number of estimators
+    
+    The final XGBoost model achieved approximately:
+    
+    - MAPE: 11.5%
+    - MAE: $129,701
+    - RMSE: $245,917
+    - Test R²: 88.6%
+    
+    Among the point-prediction models, XGBoost provided the strongest overall predictive performance.
+    
+    The model performed particularly well for lower- and middle-priced properties, while prediction errors increased for high-priced properties.
+
+  
 ### 4. Model Training
 - Train selected models using training data.
 - Tune hyperparameters for optimal performance.
