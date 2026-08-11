@@ -13,21 +13,7 @@ This project aims to develop a machine learning model to estimate the **final sa
 
 - **Provider:** California Regional Multiple Listing Service (CRMLS)
 - **Data Location:** FTP server provided by idxexchange.com
-    - Host: `ftp.boxgrad.com`
-    - Username: `data@idxexchange.com`
-    - Password: `Real_estate123$`
-    - Port: `21`
-- **Relevant Files:** In the `/raw/California` folder with prefix `CRMLSSold`
-- **Meta Data Documentation:** `Trestle Property MetaData.pdf` in the `resources` folder
 
-### Download Instructions
-
-1. Download FileZilla Client from [https://filezilla-project.org](https://filezilla-project.org).
-2. Connect to the FTP using the credentials above.
-3. Navigate to `raw/California` and **copy** (do not modify) the latest 6 months of `CRMLSSold` files to your local machine.
-4. Refer to `Trestle Property MetaData.pdf` for schema and feature details.
-
----
 
 ## Data Requirements
 
@@ -39,6 +25,7 @@ This project aims to develop a machine learning model to estimate the **final sa
     - Fields with all missing values.
 
 ---
+
 
 ## Task Specification
 
