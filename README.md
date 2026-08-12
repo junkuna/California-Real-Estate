@@ -9,6 +9,10 @@ The goal is to build a model that can estimate property value for both on-market
 
 The project progresses from data preprocessing and exploratory data analysis to baseline linear regression, tree-based ensemble models, gradient boosting, and quantile regression for prediction uncertainty.
 
+## Project Goal
+
+To build a robust, user-focused machine learning model that accurately predicts the close price of any single-family residential property in California using only features available to consumers—enabling integration into a web application for real-time property value estimation.
+
 ---
 
 ## Data Access and Preparation
@@ -93,14 +97,14 @@ Living area and bathroom count showed some of the strongest numerical relationsh
 
 ### 4. Model
 
-#### 1) Linear Regression
+#### **1) Linear Regression**
 
 file : **Regression_Model**
 - Linear regression was used as the initial modeling baseline. Both the original close-price scale and a log-transformed close-price target were evaluated.
 
 - Linear model diagnostics
   
-  - Multicollinearity
+  - **Multicollinearity**
 
     Strong multicollinearity was identified among several predictors, particularly:
     
@@ -116,28 +120,28 @@ file : **Regression_Model**
     Because of this, individual OLS coefficients, standard errors, p-values, and confidence intervals should be interpreted cautiously.
 
     
-  - Residual Normality
+  - **Residual Normality**
     
     The Jarque-Bera test rejected the null hypothesis of normally distributed residuals, and the Q-Q plot showed noticeable deviations in the tails.
 
     
-  - Homoscedasticity
+  - **Homoscedasticity**
     
     The Scale-Location plot showed changing residual spread across fitted values, indicating that the constant-variance assumption was not fully satisfied.
     
 
-  - Independence
+  - **Independence**
     
     The Durbin-Watson statistic was approximately 1.995, suggesting little evidence of serious residual autocorrelation.
     
     Overall, the linear model provided a useful and interpretable baseline, but the diagnostics indicated limitations in using a purely linear framework for property valuation.
 
 
-#### 2) Bagging and Boosting 
+#### **2) Bagging and Boosting** 
 
 file : **Bagging_Boosting_Model2**
 
-- Random Forest Regression
+- **Random Forest Regression**
 
     A Random Forest Regressor was developed as the primary bagging model.
     
@@ -162,8 +166,27 @@ file : **Bagging_Boosting_Model2**
     
     Prediction errors also increased for more expensive properties, with the model tending to underpredict some high-value homes.
     
+- **Feature Importance**
 
-- XGBoost Regression
+    Random Forest feature importance suggested that several variables played especially strong roles in predicting closing price.
+    
+    The strongest features included:
+    
+    - Living Area
+    - Latitude
+    - Bathroom Count
+    - Longitude
+    
+    Together, these features represented a substantial portion of total model importance.
+    
+    This result emphasizes the importance of both:
+    
+    Physical property characteristics
+    Geographic location
+    
+    Feature importance should still be interpreted as predictive contribution rather than causal effect.
+  
+- **XGBoost Regression**
   
     An XGBoost Regressor was then developed as the primary boosting model.
     
@@ -182,51 +205,91 @@ file : **Bagging_Boosting_Model2**
     
     - MAPE: 11.5%
     - MAE: $129,701
-    - RMSE: $245,917
     - Test R²: 88.6%
     
     Among the point-prediction models, XGBoost provided the strongest overall predictive performance.
     
     The model performed particularly well for lower- and middle-priced properties, while prediction errors increased for high-priced properties.
 
+- **Qunatile Regression**
+
+    After developing the standard XGBoost model, Quantile XGBoost was used to estimate uncertainty around property-value predictions.
+    
+    Instead of predicting only one value, the model estimated:
+    
+    - 5th percentile
+    - 50th percentile / median
+    - 95th percentile
+    
+    Together, the 5th and 95th percentiles form an intended 90% prediction interval.
+    
+    The quantile model was tuned separately because quantile regression uses pinball loss rather than squared-error loss.
+    
+    **Quantile Performance**
+    
+    The model produced approximately:
+    
+    - 5th-percentile pinball loss: $19,822
+    - Median pinball loss: $64,297
+    - 95th-percentile pinball loss: $28,367
+    - Average pinball loss: $37,495
+    
+    The intended 90% prediction interval contained approximately:
+    
+    - 86.4% of actual sale prices
+    
+    The average prediction interval width was approximately:
+    
+    - $629,221
+    
+    This indicates that the model captured substantial uncertainty in California property valuation, although the intervals were somewhat under-calibrated relative to the intended 90% coverage.
+    
+    **Median Quantile Prediction**
+    
+    The median prediction achieved approximately:
+    
+    - MAPE: 10.9%
+    - MAE: $128,594
+    - Test R²: 87.5%
+    
+    Quantile XGBoost therefore provided prediction accuracy similar to the strongest point-prediction model while also communicating uncertainty around the estimated property value.
+
+
+---
+
+## Main Takeaways
+
+- Log-transforming sale price substantially improved the linear regression baseline.
   
-### 4. Model Training
-- Train selected models using training data.
-- Tune hyperparameters for optimal performance.
+- The linear model remained useful for interpretation, but multicollinearity, residual non-normality, and heteroscedasticity limited classical OLS inference.
+  
+- Tree-based models substantially outperformed linear regression for prediction.
+- XGBoost produced the strongest overall point-prediction performance.
+- Living area, bathrooms, and geographic location were among the strongest predictive factors.
+- Lower- and middle-priced properties were generally predicted more accurately than expensive properties.
+- Quantile XGBoost provided useful uncertainty ranges but did not yet achieve the full intended 90% interval coverage.
 
-### 5. Model Evaluation
-- Evaluate using appropriate metrics (e.g., R-squared) on the test set.
-- Document model performance and areas for improvement.
 
-### 6. Prediction
-- Use the trained model to predict the close price for any property given user-supplied features.
-- Ensure the model can be integrated into a web application, with required inputs matching those a user can provide.
+## Limitations
 
-### 7. Documentation
-- Document all steps: exploration, preprocessing, modeling, evaluation, and prediction.
-- Provide clear reasoning for all decisions.
-- Prepare a live presentation summarizing findings, model performance, and the prediction process.
+- 3-fold cross-validation was used instead of 5-fold cross-validation because of computational cost. More folds may provide more stable estimates but require considerably greater training time.
+- High-priced properties were more difficult to predict and were frequently underpredicted.
+- Random Forest and XGBoost still showed some train-test performance gaps, indicating remaining overfitting.
+- Quantile prediction intervals were not perfectly calibrated. The intended 90% interval achieved approximately 86.4% coverage.
+- Quantile prediction intervals were relatively wide, with an average width of approximately $629,221.
+- Several macroeconomic and geographic predictors showed substantial multicollinearity in the linear model.
+- The EDA and modeling dataset was filtered during preprocessing, so rare, extreme, or luxury properties may be underrepresented.
+- County representation was uneven, meaning heavily represented housing markets may influence statewide results more strongly than smaller markets
 
----
-
-## Deliverables
-
-- **Python Script:** End-to-end code for preprocessing, training, evaluation, and prediction.
-- **Documentation:** Detailed write-up of the workflow, findings, and rationale.
-- **Presentation:** Slides and/or talking points for a live Zoom presentation to stakeholders.
-
----
-
-## Additional Guidelines
-
-- Code must be clean, well-organized, and reproducible.
-- Seek feedback from team members or domain experts for validation.
-- Experiment with features, models, and hyperparameters to maximize prediction accuracy.
-- Ensure that all model-required features are available to the end user at prediction time.
-
----
-
-## Project Goal
-
-To build a robust, user-focused machine learning model that accurately predicts the close price of any single-family residential property in California using only features available to consumers—enabling integration into a web application for real-time property value estimation.
-
+## Future work
+- Using 5-fold or greater cross-validation with increased computing resources
+- Further calibrating Quantile XGBoost intervals to achieve coverage closer to the intended 90%
+- Comparing uncertainty approaches such as conformal prediction
+- Building specialized models for different property-price segments
+- Improving predictions for luxury and high-priced homes
+- Adding more granular geographic features such as ZIP code, city, neighborhood, or distance-to-amenity information
+- Investigating whether highly redundant macroeconomic or geographic predictors should be selectively reduced
+- Comparing Ridge and Lasso as regularized linear baselines
+- Using explainability methods such as permutation importance or SHAP
+- Evaluating model performance separately by county and price segment
+- Monitoring model accuracy over time as California market conditions change
