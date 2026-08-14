@@ -271,6 +271,7 @@ file : **Bagging_Boosting_Model2**
 
 ---
 ## Summary
+
 - ### Explanatory Data Analysis
 
   - California sale prices were strongly right-skewed. The median close price was about $830,000, while the mean was about $1.03 million, showing that a smaller number of expensive properties pulled the average upward. Because of this skewness, medians and IQRs were more appropriate for describing typical prices.
@@ -286,9 +287,13 @@ file : **Bagging_Boosting_Model2**
   - Linear Regression was used as the starting baseline. The original model's predictions were about 30% different from actual sale prices on average, with an average dollar error of about $286,000. After adjusting the sale price using a logarithmic transformation, performance improved to about 21% average error and roughly $241,000 average dollar error. However, the model still had difficulty capturing the complexity of housing prices, and some of its statistical assumptions were not fully satisfied.
 
 
+
+
 - ### Random Forest Regressor
 
   - Random Forest performed much better. Its predictions were about 12% different from actual prices on average, and half of the properties were predicted within about 7.7% of their actual sale price. The average dollar error was approximately $137,000, and the model explained about 86.6% of the differences in sale prices among unseen homes. However, it showed some overfitting and became less accurate for expensive properties.
+
+
 
 - ### XGBoost Regressor
 
@@ -297,10 +302,12 @@ file : **Bagging_Boosting_Model2**
 - ### Quantile XGBoost Regressor
 
   - Quantile XGBoost had a different purpose. Instead of giving only one price, it provided a lower estimate, a middle or median estimate, and an upper estimate, which allows the model to communicate uncertainty.
+    
+  - For the middle estimate, predictions were about 10.9% different from actual prices on average, and half of the properties were predicted within about 7.3% of their actual sale price. The average dollar error was around $128,600.
 
-For the middle estimate, predictions were about 10.9% different from actual prices on average, and half of the properties were predicted within about 7.3% of their actual sale price. The average dollar error was around $128,600.
+  - The model's predicted price range captured the actual sale price for about 86 out of every 100 properties, slightly below the intended 90 out of 100. The average difference between the lower and upper estimates was about $629,000, showing that there can be substantial uncertainty in predicting California property prices.
 
-The model's predicted price range captured the actual sale price for about 86 out of every 100 properties, slightly below the intended 90 out of 100. The average difference between the lower and upper estimates was about $629,000, showing that there can be substantial uncertainty in predicting California property prices.
+
 
 ## Main Takeaways
 
@@ -321,28 +328,52 @@ The model's predicted price range captured the actual sale price for about 86 ou
 - Quantile XGBoost provided useful uncertainty ranges but did not yet achieve the full intended 90% interval coverage.
 
 
+
 ## Limitations
 
 - 3-fold cross-validation was used instead of 5-fold cross-validation because of computational cost. More folds may provide more stable estimates but require considerably greater training time.
+  
 - Linear regression captured some of these relationships but could not represent their complexity well.
+  
 - High-priced properties were more difficult to predict and were frequently underpredicted.
+  
 - Random Forest and XGBoost still showed some train-test performance gaps, indicating remaining small-mediate overfitting.
+  
 - Quantile prediction intervals were not perfectly calibrated. The intended 90% interval achieved approximately 86.4% coverage.
+  
 - Quantile prediction intervals were relatively wide, with an average width of approximately $629,221.
+  
 - Several macroeconomic and geographic predictors showed substantial multicollinearity in the linear model.
+  
 - The EDA showed that living area, bathrooms, and location were especially important.
+  
 - The EDA and modeling dataset was filtered during preprocessing, so rare, extreme, or luxury properties may be underrepresented.
-- County representation was uneven, meaning heavily represented housing markets may influence statewide results more strongly than smaller markets
+  
+- County representation was uneven, meaning heavily represented housing markets may influence statewide results more strongly than smaller markets.
+
+
 
 ## Future work
-- Using 5-fold or greater cross-validation with increased computing resources
-- Further calibrating Quantile XGBoost intervals to achieve coverage closer to the intended 90%
-- Comparing uncertainty approaches such as conformal prediction
-- Building specialized models for different property-price segments
-- Improving predictions for luxury and high-priced homes
-- Adding more granular geographic features such as ZIP code, city, neighborhood, or distance-to-amenity information
-- Investigating whether highly redundant macroeconomic or geographic predictors should be selectively reduced
-- Comparing Ridge and Lasso as regularized linear baselines
-- Using explainability methods such as permutation importance or SHAP
-- Evaluating model performance separately by county and price segment
-- Monitoring model accuracy over time as California market conditions change
+
+- Using 5-fold or greater cross-validation with increased computing resources.
+  
+- Further calibrating Quantile XGBoost intervals to achieve coverage closer to the intended 90%.
+  
+- Comparing uncertainty approaches such as conformal prediction.
+  
+- Building specialized models for different property-price segments.
+  
+- Improving predictions for luxury and high-priced homes.
+  
+- Adding more granular geographic features such as ZIP code, city, neighborhood, or distance-to-amenity information.
+  
+- Investigating whether highly redundant macroeconomic or geographic predictors should be selectively reduced.
+  
+- Comparing Ridge and Lasso as regularized linear baselines.
+  
+- Using explainability methods such as permutation importance or SHAP.
+  
+- Evaluating model performance separately by county and price segment.
+  
+- Monitoring model accuracy over time as California market conditions change.
+  
