@@ -117,8 +117,14 @@ file : **Regression_Model**
     
     High VIF values indicate that some predictors contain substantial overlapping information.
     
-    High VIF greater than 10 :
-    - 
+    High VIF greater than 10
+    - CPI
+    - Unemplotyment
+    - MortgageRate30Fixed
+    - FedInterestRate
+    - Latitude
+    - Longitude
+      
     Because of this, individual OLS coefficients, standard errors, p-values, and confidence intervals should be interpreted cautiously.
 
     
