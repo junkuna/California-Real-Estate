@@ -117,6 +117,8 @@ file : **Regression_Model**
     
     High VIF values indicate that some predictors contain substantial overlapping information.
     
+    High VIF greater than 10 :
+    - 
     Because of this, individual OLS coefficients, standard errors, p-values, and confidence intervals should be interpreted cautiously.
 
     
@@ -124,6 +126,8 @@ file : **Regression_Model**
     
     The Jarque-Bera test rejected the null hypothesis of normally distributed residuals, and the Q-Q plot showed noticeable deviations in the tails.
 
+  - **Linearity**
+    The residuals-versus-fitted plot did not show a strong systematic nonlinear pattern. The smoothed residual line stayed relatively close to zero across most fitted values, suggesting that the linearity assumption was reasonably satisfied
     
   - **Homoscedasticity**
     
@@ -134,7 +138,7 @@ file : **Regression_Model**
     
     The Durbin-Watson statistic was approximately 1.995, suggesting little evidence of serious residual autocorrelation.
     
-    Overall, the linear model provided a useful and interpretable baseline, but the diagnostics indicated limitations in using a purely linear framework for property valuation.
+  - The linear regression assumptions were only partially satisfied. Although linearity and independence appeared reasonable, residual normality, homoscedasticity, and low multicollinearity were not fully satisfied. Therefore, the model remained useful as a predictive and interpretable baseline, but individual coefficient estimates and statistical inference should be interpreted cautiously.
 
 
 #### **2) Bagging and Boosting** 
