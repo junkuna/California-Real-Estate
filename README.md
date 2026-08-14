@@ -3,7 +3,7 @@
 
 ## Project Overview
 
-This project develops an Automated Valuation Model (AVM) to estimate the final sale price (ClosePrice) of single-family residential properties in California.
+This project develops an Automated Valuation Model (AVM) to estimate the final sale price (ClosePrice) of single-family residential properties in California from December 2024 to May 2025.
 
 The goal is to build a model that can estimate property value for both on-market and off-market properties, similar in concept to Zillow's Zestimate. Therefore, the predictive features are limited to information that would reasonably be available for a property regardless of whether it is currently listed for sale.
 
