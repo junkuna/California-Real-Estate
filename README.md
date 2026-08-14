@@ -133,6 +133,7 @@ file : **Regression_Model**
     The Jarque-Bera test rejected the null hypothesis of normally distributed residuals, and the Q-Q plot showed noticeable deviations in the tails.
 
   - **Linearity**
+    
     The residuals-versus-fitted plot did not show a strong systematic nonlinear pattern. The smoothed residual line stayed relatively close to zero across most fitted values, suggesting that the linearity assumption was reasonably satisfied
     
   - **Homoscedasticity**
